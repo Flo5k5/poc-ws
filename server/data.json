@@ -1,0 +1,22 @@
+{
+  "products": [
+    {
+      "name": "Audi 250",
+      "owner": "Bill Gates",
+      "last_bidder": "Florian",
+      "price": 150000
+    },
+    {
+      "name": "Lamborghini S50",
+      "price": 200000,
+      "owner": "Jeff Bezos",
+      "last_bidder": "Florian"
+    },
+    {
+      "name": "Ferrari F560",
+      "price": 250000,
+      "owner": "samson35",
+      "last_bidder": "Bill Gates"
+    }
+  ]
+}
