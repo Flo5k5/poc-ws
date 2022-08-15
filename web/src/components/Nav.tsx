@@ -33,7 +33,7 @@ export default function Nav({ socket }: Props) {
   return (
     <nav className="navbar">
       <div className="header">
-        <h2>Bid Items</h2>
+        <h2 className="text-3xl font-bold underline">Bid Items</h2>
       </div>
 
       <div>
