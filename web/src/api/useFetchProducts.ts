@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-
-const API_URL = "http://localhost:4000/api";
+import { API_ENDPOINT_URL } from "src/constants";
 
 type FetchStatus = "idle" | "success" | "loading" | "error";
 
@@ -21,7 +20,7 @@ export default function useFetchProducts() {
       try {
         setStatus("loading");
 
-        const res = await fetch(API_URL);
+        const res = await fetch(API_ENDPOINT_URL);
         const data = await res.json();
 
         setData(data.products);
