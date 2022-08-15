@@ -4,6 +4,11 @@ import Suspender from "src/components/Suspender";
 import Layout from "src/components/Layout";
 import NoMatch from "src/components/NoMatch";
 import Home from "src/pages/Home";
+import lazyPageImport from "src/utils/lazyPageImport";
+
+const AddProduct = lazyPageImport("AddProduct");
+const BidProduct = lazyPageImport("BidProduct");
+const Products = lazyPageImport("Products");
 
 const socket = connect("http://localhost:4000");
 
@@ -13,6 +18,30 @@ function App() {
       <Routes>
         <Route path="/" element={<Layout socket={socket} />}>
           <Route index element={<Home />} />
+          <Route
+            path="/products"
+            element={
+              <Suspender>
+                <Products />
+              </Suspender>
+            }
+          />
+          <Route
+            path="/products/add"
+            element={
+              <Suspender>
+                <AddProduct socket={socket} />
+              </Suspender>
+            }
+          />
+          <Route
+            path="/products/bid/:name/:price"
+            element={
+              <Suspender>
+                <BidProduct socket={socket} />
+              </Suspender>
+            }
+          />
           <Route
             path="*"
             element={
