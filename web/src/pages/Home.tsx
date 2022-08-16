@@ -1,15 +1,30 @@
-import  { FormEvent, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { ChangeEvent, FormEvent, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuthentication } from "src/context/AuthenticationContext";
 
 export default function Home() {
-  const [userName, setUserName] = useState('');
+  const [inputUsername, setInputUsername] = useState("");
+  const { username, signIn } = useAuthentication();
   const navigate = useNavigate();
 
-  function handleSubmit (e: FormEvent<HTMLFormElement> )  {
-    e.preventDefault?.();
-    localStorage.setItem('userName', userName);
-    navigate('/products');
+  function handleInputChange(e: ChangeEvent<HTMLInputElement>) {
+    setInputUsername(e.target.value);
   }
+
+  function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault?.();
+
+    let formData = new FormData(e.currentTarget);
+    let username = formData?.get("username") as string;
+
+    signIn?.(username, () => {
+      navigate("/products");
+    });
+  }
+
+  useEffect(() => {
+    setInputUsername(username || "");
+  }, [username]);
 
   return (
     <div>
@@ -19,8 +34,8 @@ export default function Home() {
           type="text"
           name="username"
           className="home__input"
-          value={userName}
-          onChange={(e) => setUserName(e.target.value)}
+          value={inputUsername}
+          onChange={handleInputChange}
           required
           minLength={6}
         />

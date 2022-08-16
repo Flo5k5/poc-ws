@@ -1,8 +1,8 @@
-import { ReactNode, Suspense } from "react";
+import { ReactElement, Suspense } from "react";
 
 interface Props {
-  children: ReactNode;
-  fallback?: ReactNode;
+  children: ReactElement;
+  fallback?: ReactElement;
 }
 
 export default function Suspender({ children, fallback }: Props) {

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { Socket } from "socket.io-client";
 
 interface Props {
@@ -33,7 +34,7 @@ export default function Nav({ socket }: Props) {
   return (
     <nav className="navbar">
       <div className="header">
-        <h2 className="text-3xl font-bold underline">Bid Items</h2>
+        <h2 className="text-3xl font-bold"><Link to="/">Bid Items</Link></h2>
       </div>
 
       <div>
