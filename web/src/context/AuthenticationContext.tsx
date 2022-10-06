@@ -22,7 +22,6 @@ export function AuthenticationProvider({ children }: Props) {
 
   useEffect(() => {
     const data = localStorage.getItem("username");
-    console.log({ data });
     setUsername(data);
   }, []);
 

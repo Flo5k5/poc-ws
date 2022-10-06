@@ -1,16 +1,19 @@
 import { ChangeEvent, FormEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Socket } from "socket.io-client";
+import useHeaderTitle from "src/hooks/useHeaderTitle";
+import Button from "src/ui/Button";
 
 interface Props {
   socket?: Socket;
 }
 
 export default function AddProduct({ socket }: Props) {
+  useHeaderTitle("Add a product");
+
   const [name, setName] = useState("");
   const [price, setPrice] = useState(0);
   const navigate = useNavigate();
-
   function handleNameChange(e: ChangeEvent<HTMLInputElement>) {
     setName(e.target.value);
   }
@@ -30,31 +33,28 @@ export default function AddProduct({ socket }: Props) {
   }
 
   return (
-    <div>
-      <div className="addproduct__container">
-        <h2>Add a new product</h2>
-        <form className="addProduct__form" onSubmit={handleSubmit}>
-          <label htmlFor="name">Name of the product</label>
-          <input
-            type="text"
-            name="name"
-            value={name}
-            onChange={handleNameChange}
-            required
-          />
-
-          <label htmlFor="price">Starting price</label>
-          <input
-            type="number"
-            name="price"
-            value={price}
-            onChange={handlePriceChange}
-            required
-          />
-
-          <button className="addProduct__cta">SEND</button>
-        </form>
+    <form className="flex-1 flex flex-col mx-auto my-auto max-w-7xl py-6 sm:px-6 lg:px-8 gap-10" onSubmit={handleSubmit}>
+      <div className="flex flex-col gap-5">
+        <label htmlFor="name">Name of the product</label>
+        <input
+          type="text"
+          name="name"
+          value={name}
+          onChange={handleNameChange}
+          required
+        />
       </div>
-    </div>
+      <div className="flex flex-col gap-5">
+        <label htmlFor="price">Starting price</label>
+        <input
+          type="number"
+          name="price"
+          value={price}
+          onChange={handlePriceChange}
+          required
+        />
+      </div>
+      <Button>SEND</Button>
+    </form>
   );
 }

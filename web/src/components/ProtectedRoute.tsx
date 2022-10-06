@@ -1,5 +1,5 @@
 import { ReactElement } from "react";
-import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { Navigate, Outlet, useLocation, useOutletContext } from "react-router-dom";
 import { useAuthentication } from "src/context/AuthenticationContext";
 
 interface Props {
@@ -14,8 +14,8 @@ export default function ProtectedRoute({ children, redirectTo = "/" }: Props) {
   const location = useLocation();
 
   if (!username) {
-    return <Navigate to={redirectTo} replace state={{ from: location }}  />;
+    return <Navigate to={redirectTo} replace state={{ from: location }} />;
   }
 
-  return children ?? <Outlet />;
+  return children ?? <Outlet context={useOutletContext()} />;
 }

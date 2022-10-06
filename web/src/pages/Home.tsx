@@ -1,8 +1,11 @@
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthentication } from "src/context/AuthenticationContext";
+import useHeaderTitle from "src/hooks/useHeaderTitle";
+import Button from "src/ui/Button";
 
 export default function Home() {
+  useHeaderTitle("Bid items");
   const [inputUsername, setInputUsername] = useState("");
   const { username, signIn } = useAuthentication();
   const navigate = useNavigate();
@@ -27,8 +30,8 @@ export default function Home() {
   }, [username]);
 
   return (
-    <div>
-      <form className="home__form" onSubmit={handleSubmit}>
+    <form className="flex-1 flex flex-col mx-auto max-w-7xl py-6 sm:px-6 lg:px-8 gap-10" onSubmit={handleSubmit}>
+      <div className="flex flex-col gap-5">
         <label htmlFor="username">Enter your username</label>
         <input
           type="text"
@@ -39,8 +42,9 @@ export default function Home() {
           required
           minLength={6}
         />
-        <button className="home__cta">SIGN IN</button>
-      </form>
-    </div>
+      </div>
+      <Button>SIGN IN</Button>
+    </form>
+
   );
 }
