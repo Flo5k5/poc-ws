@@ -1,38 +1,112 @@
 import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+  User,
+  UserCredential,
+  signInWithPopup,
+  GoogleAuthProvider,
+} from "firebase/auth";
+import {
   createContext,
   ReactElement,
   useContext,
   useEffect,
   useState,
 } from "react";
+import { auth, provider } from "src/firebase";
 
-interface AuthenticationContextType {
-  username?: string | null;
-  signIn?: (username: string, callback: () => void) => void;
+export enum SocialLogin {
+  google = "google",
+  facebook = "facebook",
 }
 
-const AuthenticationContext = createContext<AuthenticationContextType>({});
+interface AuthenticationContextType {
+  isReady?: boolean;
+  user?: User | null;
+  status: Status;
+  signInWithGoogle?: () => Promise<User | null>;
+  signIn?: (email: string, password: string) => Promise<UserCredential>;
+  signUp?: (email: string, password: string) => Promise<UserCredential>;
+  logOut?: () => Promise<void>;
+}
+
+const AuthenticationContext = createContext<AuthenticationContextType>({
+  status: "idle",
+});
 
 interface Props {
   children?: ReactElement;
 }
 
+type Status = "idle" | "loading" | "connected" | "anonymous";
+
 export function AuthenticationProvider({ children }: Props) {
-  const [username, setUsername] = useState<string | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [isReady, setIsReady] = useState(false);
+  const [status, setStatus] = useState<Status>("loading");
 
-  useEffect(() => {
-    const data = localStorage.getItem("username");
-    setUsername(data);
-  }, []);
+  function signInWithGoogle() {
+    return signInWithPopup(auth, provider)
+      .then((result) => {
+        const credential = GoogleAuthProvider.credentialFromResult(result);
 
-  function signIn(username: string, callback: () => void) {
-    localStorage.setItem("username", username);
-    setUsername(username);
-    callback?.();
+        if (!credential) {
+          throw new Error("[signInWithGoogle]: returned credential is falsy.");
+        }
+
+        const token = credential.accessToken;
+        const user = result.user;
+        return user;
+      })
+      .catch((error) => {
+        const credential = GoogleAuthProvider.credentialFromError(error);
+        console.error(error, credential);
+        return null;
+      });
   }
 
+  function signIn(email: string, password: string) {
+    return signInWithEmailAndPassword(auth, email, password);
+  }
+
+  function signUp(email: string, password: string) {
+    return createUserWithEmailAndPassword(auth, email, password);
+  }
+
+  function logOut() {
+    return signOut(auth);
+  }
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentuser) => {
+      setUser(currentuser);
+
+      if (!!currentuser) {
+        setStatus("connected");
+      } else {
+        setStatus("anonymous");
+      }
+      setIsReady(true);
+    });
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
   return (
-    <AuthenticationContext.Provider value={{ username, signIn }}>
+    <AuthenticationContext.Provider
+      value={{
+        user,
+        isReady,
+        status,
+        signInWithGoogle,
+        signIn,
+        signUp,
+        logOut,
+      }}
+    >
       {children}
     </AuthenticationContext.Provider>
   );

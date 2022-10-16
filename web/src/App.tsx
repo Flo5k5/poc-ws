@@ -14,17 +14,26 @@ const BidProduct = lazyPageImport("BidProduct");
 const Products = lazyPageImport("Products");
 const Signin = lazyPageImport("Signin");
 const Signup = lazyPageImport("Signup");
+const Signout = lazyPageImport("Signout");
 
 const socket = connect(SOCKET_URL);
 
 function App() {
   return (
-    <Router>
-      <AuthenticationProvider>
+    <AuthenticationProvider>
+      <Router>
         <Routes>
           <Route path="/" element={<Layout socket={socket} />}>
             <Route index element={<Home />} />
             <Route path="/home" element={<Home />} />
+            <Route
+              path="/products"
+              element={
+                <Suspender>
+                  <Products />
+                </Suspender>
+              }
+            />
             <Route
               path="/signin"
               element={
@@ -38,14 +47,6 @@ function App() {
               element={
                 <Suspender>
                   <Signup />
-                </Suspender>
-              }
-            />
-            <Route
-              path="/products"
-              element={
-                <Suspender>
-                  <Products />
                 </Suspender>
               }
             />
@@ -66,6 +67,14 @@ function App() {
                   </Suspender>
                 }
               />
+              <Route
+                path="/signout"
+                element={
+                  <Suspender>
+                    <Signout />
+                  </Suspender>
+                }
+              />
             </Route>
             <Route
               path="*"
@@ -77,8 +86,8 @@ function App() {
             />
           </Route>
         </Routes>
-      </AuthenticationProvider>
-    </Router>
+      </Router>
+    </AuthenticationProvider>
   );
 }
 

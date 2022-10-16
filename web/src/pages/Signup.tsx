@@ -1,19 +1,60 @@
-import { useState } from "react";
+import { FormEvent, useState } from "react";
+import {
+  SocialLogin,
+  useAuthentication,
+} from "src/context/AuthenticationContext";
+import { useNavigate } from "react-router-dom";
 
 export default function Signup() {
   const [isPasswordShown, setIsPasswordShown] = useState(false);
+  const { signUp, signInWithGoogle } = useAuthentication();
+  const navigate = useNavigate();
+  const [formError, setFormError] = useState("");
+
+  function handleSocialLogin(type: SocialLogin) {
+    return async () => {
+      switch (type) {
+        case SocialLogin.google:
+          signInWithGoogle?.().then(() => {
+            navigate("/products");
+          });
+          break;
+        case SocialLogin.facebook:
+          console.log(type);
+        default:
+          break;
+      }
+    };
+  }
+
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    setFormError("");
+    e.preventDefault?.();
+
+    let formData = new FormData(e.currentTarget);
+    let email = formData?.get("email") as string;
+    let password = formData?.get("password") as string;
+
+    try {
+      await signUp?.(email, password);
+      navigate("/products");
+    } catch (e: any) {
+      console.error("handleSubmit", { e });
+      setFormError(e.message);
+    }
+  }
 
   return (
     <div className="mx-auto my-auto max-w-7xl py-6 sm:px-6 lg:px-8">
       <div className="flex justify-center self-center z-10 shadow-xl">
-        <div className="p-12 bg-gray-800 mx-auto rounded-3xl w-96 ">
-          <div className="mb-7">
-            <h3 className="font-semibold text-2xl text-gray-100">Sign up </h3>
-          </div>
-          <div className="space-y-6">
+        <div className="p-12 bg-gray-800 mx-auto rounded-3xl w-96 flex  flex-col gap-7">
+          <h3 className="font-semibold text-2xl text-gray-100">Sign up </h3>
+          <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
               <input
                 className="w-full text-sm text-gray-200  px-4 py-3 bg-gray-900 border  border-gray-700 rounded-lg focus:outline-none focus:border-purple-400"
+                name="email"
+                required
                 type="email"
                 placeholder="Email"
               />
@@ -22,13 +63,17 @@ export default function Signup() {
             <div className="relative">
               <input
                 placeholder="Password"
-                type={isPasswordShown ? "password" : "text"}
+                name="password"
+                minLength={8}
+                required
+                type={isPasswordShown ? "text" : "password"}
                 className="text-sm text-gray-200 px-4 py-3 rounded-lg w-full bg-gray-900 border border-gray-700 focus:outline-none focus:border-purple-400"
               />
               <div className="flex items-center absolute inset-y-0 right-0 mr-3  text-sm leading-5">
                 <svg
-                  className={`${isPasswordShown ? "block" : "hidden"
-                    } h-4 text-purple-500`}
+                  className={`${
+                    isPasswordShown ? "block" : "hidden"
+                  } h-4 text-purple-500`}
                   onClick={() => setIsPasswordShown((val) => !val)}
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
@@ -42,8 +87,9 @@ export default function Signup() {
 
                 <svg
                   onClick={() => setIsPasswordShown((val) => !val)}
-                  className={`${isPasswordShown ? "hidden" : "block"
-                    } h-4 text-purple-500`}
+                  className={`${
+                    isPasswordShown ? "hidden" : "block"
+                  } h-4 text-purple-500`}
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 640 512"
@@ -56,13 +102,6 @@ export default function Signup() {
               </div>
             </div>
 
-            <div className="flex items-center justify-between">
-              <div className="text-sm ml-auto">
-                <a href="#" className="text-purple-700 hover:text-purple-600">
-                  Forgot your password?
-                </a>
-              </div>
-            </div>
             <div>
               <button
                 type="submit"
@@ -70,6 +109,8 @@ export default function Signup() {
               >
                 Sign up
               </button>
+
+              {formError && <p>{formError}</p>}
             </div>
             <div className="flex items-center justify-center space-x-2 my-5">
               <span className="h-px w-16 bg-gray-700"></span>
@@ -78,8 +119,9 @@ export default function Signup() {
             </div>
             <div className="flex justify-center gap-5 w-full ">
               <button
-                type="submit"
+                type="button"
                 className="w-full flex items-center justify-center gap-2 mb-6 md:mb-0 border border-gray-700 hover:border-gray-900 hover:bg-gray-900 text-sm text-gray-300 p-3  rounded-lg tracking-wide font-medium  cursor-pointer transition ease-in duration-500"
+                onClick={handleSocialLogin(SocialLogin.google)}
               >
                 <svg
                   className="w-4"
@@ -106,8 +148,9 @@ export default function Signup() {
                 <span>Google</span>
               </button>
               <button
-                type="submit"
+                type="button"
                 className="w-full flex items-center justify-center gap-2 mb-6 md:mb-0 border border-gray-700 hover:border-gray-900 hover:bg-gray-900 text-sm text-gray-300 p-3  rounded-lg tracking-wide font-medium cursor-pointer transition ease-in duration-500 px-"
+                onClick={handleSocialLogin(SocialLogin.facebook)}
               >
                 <svg
                   className="w-4"
@@ -123,7 +166,7 @@ export default function Signup() {
                 <span>Facebook</span>
               </button>
             </div>
-          </div>
+          </form>
         </div>
       </div>
     </div>

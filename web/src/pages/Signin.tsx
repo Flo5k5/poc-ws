@@ -1,8 +1,43 @@
-import { useState } from "react";
+import { useState, FormEvent } from "react";
 import { Link } from "react-router-dom";
+import {
+  SocialLogin,
+  useAuthentication,
+} from "src/context/AuthenticationContext";
+import { useNavigate } from "react-router-dom";
 
 export default function Signin() {
   const [isPasswordShown, setIsPasswordShown] = useState(false);
+  const { user, signIn, signInWithGoogle } = useAuthentication();
+  const navigate = useNavigate();
+
+  function handleSocialLogin(type: SocialLogin) {
+    return async () => {
+      switch (type) {
+        case SocialLogin.google:
+          signInWithGoogle?.().then(() => {
+            navigate("/products");
+          });
+          break;
+        case SocialLogin.facebook:
+          console.log(type);
+        default:
+          break;
+      }
+    };
+  }
+
+  function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault?.();
+
+    let formData = new FormData(e.currentTarget);
+    let email = formData?.get("email") as string;
+    let password = formData?.get("password") as string;
+
+    signIn?.(email, password).then(() => {
+      navigate("/products");
+    });
+  }
 
   return (
     <div className="mx-auto my-auto max-w-7xl py-6 sm:px-6 lg:px-8">
@@ -20,10 +55,12 @@ export default function Signin() {
               </Link>
             </p>
           </div>
-          <div className="space-y-6">
+          <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
               <input
                 className="w-full text-sm text-gray-200  px-4 py-3 bg-gray-900 border  border-gray-700 rounded-lg focus:outline-none focus:border-purple-400"
+                name="email"
+                required
                 type="email"
                 placeholder="Email"
               />
@@ -32,13 +69,17 @@ export default function Signin() {
             <div className="relative">
               <input
                 placeholder="Password"
-                type={isPasswordShown ? "password" : "text"}
+                name="password"
+                minLength={8}
+                required
+                type={isPasswordShown ? "text" : "password"}
                 className="text-sm text-gray-200 px-4 py-3 rounded-lg w-full bg-gray-900 border border-gray-700 focus:outline-none focus:border-purple-400"
               />
               <div className="flex items-center absolute inset-y-0 right-0 mr-3  text-sm leading-5">
                 <svg
-                  className={`${isPasswordShown ? "block" : "hidden"
-                    } h-4 text-purple-500`}
+                  className={`${
+                    isPasswordShown ? "block" : "hidden"
+                  } h-4 text-purple-500`}
                   onClick={() => setIsPasswordShown((val) => !val)}
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
@@ -52,8 +93,9 @@ export default function Signin() {
 
                 <svg
                   onClick={() => setIsPasswordShown((val) => !val)}
-                  className={`${isPasswordShown ? "hidden" : "block"
-                    } h-4 text-purple-500`}
+                  className={`${
+                    isPasswordShown ? "hidden" : "block"
+                  } h-4 text-purple-500`}
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 640 512"
@@ -88,8 +130,9 @@ export default function Signin() {
             </div>
             <div className="flex justify-center gap-5 w-full ">
               <button
-                type="submit"
+                type="button"
                 className="w-full flex items-center justify-center gap-2 mb-6 md:mb-0 border border-gray-700 hover:border-gray-900 hover:bg-gray-900 text-sm text-gray-300 p-3  rounded-lg tracking-wide font-medium  cursor-pointer transition ease-in duration-500"
+                onClick={handleSocialLogin(SocialLogin.google)}
               >
                 <svg
                   className="w-4"
@@ -116,8 +159,9 @@ export default function Signin() {
                 <span>Google</span>
               </button>
               <button
-                type="submit"
+                type="button"
                 className="w-full flex items-center justify-center gap-2 mb-6 md:mb-0 border border-gray-700 hover:border-gray-900 hover:bg-gray-900 text-sm text-gray-300 p-3  rounded-lg tracking-wide font-medium cursor-pointer transition ease-in duration-500 px-"
+                onClick={handleSocialLogin(SocialLogin.facebook)}
               >
                 <svg
                   className="w-4"
@@ -133,7 +177,7 @@ export default function Signin() {
                 <span>Facebook</span>
               </button>
             </div>
-          </div>
+          </form>
         </div>
       </div>
     </div>

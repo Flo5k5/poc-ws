@@ -1,33 +1,30 @@
 import { useState, useEffect } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { Socket } from "socket.io-client";
 import { Fragment } from "react";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
-import { Bars3Icon, BellIcon, ChatBubbleLeftRightIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import {
+  Bars3Icon,
+  BellIcon,
+  ChatBubbleLeftRightIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
 import classNames from "src/utils/classNames";
+import { useAuthentication } from "src/context/AuthenticationContext";
 
 interface Props {
   socket?: Socket;
 }
 
-const user = {
-  name: "Tom Cook",
-  email: "tom@example.com",
-  imageUrl:
-    "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-};
 const navigation = [
   { name: "Home", href: "/", current: true },
   { name: "Products", href: "/products", current: false },
 ];
-const userNavigation = [
-  { name: "Your Profile", href: "#" },
-  { name: "Settings", href: "#" },
-  { name: "Sign out", href: "#" },
-];
+const userNavigation = [{ name: "Sign out", href: "/signout" }];
 
 export default function Nav({ socket }: Props) {
   const [notification, setNotification] = useState("");
+  const { user } = useAuthentication();
 
   //Listens after a product is added
   useEffect(() => {
@@ -68,12 +65,14 @@ export default function Nav({ socket }: Props) {
                         key={item.name}
                         to={item.href}
                         end
-                        className={({ isActive }) => classNames(
-                          isActive
-                            ? "bg-gray-900 text-white"
-                            : "text-gray-300 hover:bg-gray-700 hover:text-white",
-                          "px-3 py-2 rounded-md text-sm font-medium"
-                        )}
+                        className={({ isActive }) =>
+                          classNames(
+                            isActive
+                              ? "bg-gray-900 text-white"
+                              : "text-gray-300 hover:bg-gray-700 hover:text-white",
+                            "px-3 py-2 rounded-md text-sm font-medium"
+                          )
+                        }
                         aria-current="page"
                       >
                         {item.name}
@@ -84,54 +83,76 @@ export default function Nav({ socket }: Props) {
               </div>
               <div className="hidden md:block">
                 <div className="ml-4 flex items-center md:ml-6">
-                  <button
-                    type="button"
-                    className="rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
-                  >
-                    <span className="sr-only">View notifications</span>
-                    <BellIcon className="h-6 w-6" aria-hidden="true" />
-                  </button>
-
-                  {/* Profile dropdown */}
-                  <Menu as="div" className="relative ml-3">
-                    <div>
-                      <Menu.Button className="flex max-w-xs items-center rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
-                        <span className="sr-only">Open user menu</span>
-                        <img
-                          className="h-8 w-8 rounded-full"
-                          src={user.imageUrl}
-                          alt=""
-                        />
-                      </Menu.Button>
-                    </div>
-                    <Transition
-                      as={Fragment}
-                      enter="transition ease-out duration-100"
-                      enterFrom="transform opacity-0 scale-95"
-                      enterTo="transform opacity-100 scale-100"
-                      leave="transition ease-in duration-75"
-                      leaveFrom="transform opacity-100 scale-100"
-                      leaveTo="transform opacity-0 scale-95"
-                    >
-                      <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                        {userNavigation.map((item) => (
-                          <Menu.Item key={item.name}>
-                            {({ active }) => (
-                              <a
-                                href={item.href}
-                                className={classNames(
-                                  active ? "bg-gray-100" : "",
-                                  "block px-4 py-2 text-sm text-gray-700"
+                  {!!user ? (
+                    <>
+                      <button
+                        type="button"
+                        className="rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
+                      >
+                        <span className="sr-only">View notifications</span>
+                        <BellIcon className="h-6 w-6" aria-hidden="true" />
+                      </button>
+                      {/* Profile dropdown */}
+                      <Menu as="div" className="relative ml-3">
+                        <div>
+                          <Menu.Button className="flex max-w-xs items-center rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
+                            <span className="sr-only">Open user menu</span>
+                            <img
+                              className="h-8 w-8 rounded-full"
+                              src={user!.photoURL || ""}
+                              alt=""
+                            />
+                          </Menu.Button>
+                        </div>
+                        <Transition
+                          as={Fragment}
+                          enter="transition ease-out duration-100"
+                          enterFrom="transform opacity-0 scale-95"
+                          enterTo="transform opacity-100 scale-100"
+                          leave="transition ease-in duration-75"
+                          leaveFrom="transform opacity-100 scale-100"
+                          leaveTo="transform opacity-0 scale-95"
+                        >
+                          <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                            {userNavigation.map((item) => (
+                              <Menu.Item key={item.name}>
+                                {({ active }) => (
+                                  <NavLink
+                                    key={item.name}
+                                    to={item.href}
+                                    end
+                                    className={classNames(
+                                      active ? "bg-gray-100" : "",
+                                      "block px-4 py-2 text-sm text-gray-700"
+                                    )}
+                                  >
+                                    {item.name}
+                                  </NavLink>
                                 )}
-                              >
-                                {item.name}
-                              </a>
-                            )}
-                          </Menu.Item>
-                        ))}
-                      </Menu.Items>
-                    </Transition>
-                  </Menu>
+                              </Menu.Item>
+                            ))}
+                          </Menu.Items>
+                        </Transition>
+                      </Menu>
+                    </>
+                  ) : (
+                    <NavLink
+                      key="signin"
+                      to="/signin"
+                      end
+                      className={({ isActive }) =>
+                        classNames(
+                          isActive
+                            ? "bg-gray-900 text-white"
+                            : "text-gray-300 hover:bg-gray-700 hover:text-white",
+                          "px-3 py-2 rounded-md text-sm font-medium"
+                        )
+                      }
+                      aria-current="page"
+                    >
+                      Sign In
+                    </NavLink>
+                  )}
                 </div>
               </div>
               <div className="-mr-2 flex md:hidden">
@@ -156,61 +177,85 @@ export default function Nav({ socket }: Props) {
                   as={NavLink}
                   end
                   to={item.href}
-                  className={({ isActive }: { isActive: boolean }) => classNames(
-                    isActive
-                      ? "bg-gray-900 text-white"
-                      : "text-gray-300 hover:bg-gray-700 hover:text-white",
-                    "px-3 py-2 rounded-md text-sm font-medium"
-                  )}
+                  className={({ isActive }: { isActive: boolean }) =>
+                    classNames(
+                      isActive
+                        ? "bg-gray-900 text-white"
+                        : "text-gray-300 hover:bg-gray-700 hover:text-white",
+                      "px-3 py-2 rounded-md text-sm font-medium"
+                    )
+                  }
                   aria-current="page"
                 >
                   {item.name}
                 </Disclosure.Button>
               ))}
-            </div>
-            <div className="border-t border-gray-700 pt-4 pb-3">
-              <div className="flex items-center px-5">
-                <div className="flex-shrink-0">
-                  <img
-                    className="h-10 w-10 rounded-full"
-                    src={user.imageUrl}
-                    alt=""
-                  />
-                </div>
-                <div className="ml-3">
-                  <div className="text-base font-medium leading-none text-white">
-                    {user.name}
-                  </div>
-                  <div className="text-sm font-medium leading-none text-gray-400">
-                    {user.email}
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  className="ml-auto flex-shrink-0 rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
+              {!user && (
+                <Disclosure.Button
+                  as={NavLink}
+                  key="signin"
+                  to="/signin"
+                  end
+                  className={({ isActive }: { isActive: boolean }) =>
+                    classNames(
+                      isActive
+                        ? "bg-gray-900 text-white"
+                        : "text-gray-300 hover:bg-gray-700 hover:text-white",
+                      "px-3 py-2 rounded-md text-sm font-medium"
+                    )
+                  }
+                  aria-current="page"
                 >
-                  <span className="sr-only">View notifications</span>
-                  <BellIcon className="h-6 w-6" aria-hidden="true" />
-                </button>
-              </div>
-              <div className="mt-3 space-y-1 px-2">
-                {userNavigation.map((item) => (
-                  <Disclosure.Button
-                    key={item.name}
-                    as="a"
-                    href={item.href}
-                    className="block rounded-md px-3 py-2 text-base font-medium text-gray-400 hover:bg-gray-700 hover:text-white"
-                  >
-                    {item.name}
-                  </Disclosure.Button>
-                ))}
-              </div>
+                  Sign In
+                </Disclosure.Button>
+              )}
             </div>
+            {!!user && (
+              <div className="border-t border-gray-700 pt-4 pb-3">
+                <div className="flex items-center px-5">
+                  <div className="flex-shrink-0">
+                    <img
+                      className="h-10 w-10 rounded-full"
+                      src={user!.photoURL || ""}
+                      alt=""
+                    />
+                  </div>
+                  <div className="ml-3">
+                    <div className="text-base font-medium leading-none text-white">
+                      {user!.displayName}
+                    </div>
+                    <div className="text-sm font-medium leading-none text-gray-400">
+                      {user.email}
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    className="ml-auto flex-shrink-0 rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-1 focus:ring-white focus:ring-offset-1 focus:ring-offset-gray-800"
+                  >
+                    <span className="sr-only">View notifications</span>
+                    <BellIcon className="h-6 w-6" aria-hidden="true" />
+                  </button>
+                </div>
+                <div className="mt-3 space-y-1 px-2">
+                  {userNavigation.map((item) => (
+                    <Disclosure.Button
+                      key={item.name}
+                      as={NavLink}
+                      end
+                      to={item.href}
+                      aria-current="page"
+                      className="block rounded-md px-3 py-2 text-base font-medium text-gray-400 hover:bg-gray-700 hover:text-white"
+                    >
+                      {item.name}
+                    </Disclosure.Button>
+                  ))}
+                </div>
+              </div>
+            )}
           </Disclosure.Panel>
         </>
-      )
-      }
-    </Disclosure >
+      )}
+    </Disclosure>
     // <p style={{ color: "red" }}>{notification}</p>
   );
 }
