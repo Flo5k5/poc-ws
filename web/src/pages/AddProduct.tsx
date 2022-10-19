@@ -19,7 +19,7 @@ export default function AddProduct({ socket }: Props) {
   }
 
   function handlePriceChange(e: ChangeEvent<HTMLInputElement>) {
-    setPrice(parseInt(e.target.value || '0', 10));
+    setPrice(parseInt(e.target.value || "0", 10));
   }
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
